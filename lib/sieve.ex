@@ -21,14 +21,15 @@ defmodule Sieve do
   defp primes(limit) when is_integer(limit) and limit >= @first_prime do
 
     # Create primality flag list starting at index 0
-    list = List.flatten([false, false], @first_prime..limit |> Enum.map(fn _ -> true end))
+    list = List.flatten([false, false], 
+                        @first_prime..limit |> Enum.map(fn _ -> true end))
 
     # Create a sieve in map form, maps work well for large entries
     sieve = list |> Stream.with_index(0) |> Map.new(fn {v,i} -> {i,v} end)
 
     # Generate indices only to the sqrt of limit.
     # Given limit of 100, indices are to 10
-    indices = 2..(Kernel.round(:math.sqrt(limit)))
+    indices = @first_prime..(Kernel.round(:math.sqrt(limit)))
 
     # Given indices, flag those that are not prime
     Enum.reduce(indices, sieve, fn i, acc ->
@@ -40,7 +41,7 @@ defmodule Sieve do
           # step every i, to the limit
           non_primes = 
             Stream.iterate(i*i, &(&1 + i)) 
-            |> Enum.take_while(fn n -> n <= limit end)
+            |> Enum.take_while(&(&1 <= limit))
         
           # 2: Update the sieve acc for each list of non_primes as generated from each i
           Enum.reduce(non_primes, acc, fn i, map ->
